@@ -1,19 +1,19 @@
 Instructions for Using the Bot:
 
-You need to download Python from the official website: [Python 3.10.6](https://www.python.org/downloads/release/python-3106/) (tested on this version).
+1. You need to download Python from the official website: [Python 3.10.6](https://www.python.org/downloads/release/python-3106/) (tested on this version).
 
-Open the command prompt and navigate to the folder where your script is located using the command cd (path to the folder).
+2. Open the command prompt and navigate to the folder where your script is located using the command cd (path to the folder).
 
-Enter the following command in the command prompt: pip -r requirements.txt.
+3. Enter the following command in the command prompt: pip -r requirements.txt.
 
-Now you need to open the bot.py file and replace:
+4. Now you need to open the bot.py file and replace:
 
 TELEGRAM_BOT_TOKEN = "your Telegram bot token" # Create it here: https://t.me/BotFather
 TELEGRAM_CHAT_ID = "your chat ID" # You can find it here: https://t.me/myidbot
 
-Now that you have everything set up, you can start the bot by running the command python bot.py.
+5. Now that you have everything set up, you can start the bot by running the command python bot.py.
 
-To begin, send the command /start to the bot, and it will guide you on what to do next.
+6. To begin, send the command /start to the bot, and it will guide you on what to do next.
 
 
 
@@ -32,6 +32,10 @@ Check Containers Status - shows all information about containers if they are run
 Check Images Status - performs the same action as the previous function but for images.
 
 Restart Server - restarts your remote server (takes about a minute).
+
+
+
+
 
 This is the first version of my bot, and there may be errors. Please feel free to report them either on GitHub in the Issues section or on Discord - rentgg.
 
