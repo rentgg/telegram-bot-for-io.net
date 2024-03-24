@@ -8,7 +8,8 @@ Instructions for Using the Bot:
 
 4. Now you need to open the bot.py file and replace:
 
-TELEGRAM_BOT_TOKEN = "your Telegram bot token" # Create it here: https://t.me/BotFather 
+TELEGRAM_BOT_TOKEN = "your Telegram bot token" # Create it here: https://t.me/BotFather
+
 TELEGRAM_CHAT_ID = "your chat ID" # You can find it here: https://t.me/myidbot
 
 5. Now that you have everything set up, you can start the bot by running the command python bot.py.
