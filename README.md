@@ -1,3 +1,9 @@
+Please note that the servers must be on a linux system
+
+it will not work on other operating systems!!!
+
+
+
 Instructions for Using the Bot:
 
 1. You need to download Python from the official website: [Python 3.10.6](https://www.python.org/downloads/release/python-3106/) (tested on this version).
