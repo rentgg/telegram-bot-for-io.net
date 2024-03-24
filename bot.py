@@ -221,8 +221,8 @@ def server_button_click(update, context):
 
         keyboard = [
             [InlineKeyboardButton("Setup New Worker", callback_data=f"setup_{ip}")],
-            [InlineKeyboardButton("Reset Containers & Images", callback_data=f"reset_{ip}")],
             [InlineKeyboardButton("Launch Node / Restart", callback_data=f"launch_{ip}")],
+            [InlineKeyboardButton("Reset Containers & Images", callback_data=f"reset_{ip}")],
             [InlineKeyboardButton("Check Containers Status", callback_data=f"status_{ip}")],
             [InlineKeyboardButton("Check Images Status", callback_data=f"statusimage_{ip}")],
             [InlineKeyboardButton("Restart Server", callback_data=f"restart_{ip}")],
