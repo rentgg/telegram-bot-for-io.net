@@ -1,4 +1,4 @@
 paramiko==3.4.0
-python-telegram-bot==21.0.1
+python-telegram-bot==13.7
 Requests==2.31.0
 json
