@@ -4,11 +4,7 @@ Instructions for Using the Bot:
 
 2. Open the command prompt and navigate to the folder where your script is located using the command cd (path to the folder).
 
-3. Enter the following command in the command prompt: <pre>
-```bash
-pip -r requirements.txt
-```
-</pre>
+3. Enter the following command in the command prompt: <pre>```pip -r requirements.txt```</pre>
 
 4. Now you need to open the bot.py file and replace:
 
