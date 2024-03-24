@@ -5,11 +5,24 @@ from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, MessageH
 from telegram.error import BadRequest
 import time
 import socket
+import json
 
 TELEGRAM_BOT_TOKEN = 'bottoken here'
 TELEGRAM_CHAT_ID = 'you chat id here'
 
+def load_servers():
+    try:
+        with open('servers.json', 'r') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return []
+    
+def save_servers():
+    with open('servers.json', 'w') as f:
+        json.dump(servers, f)
+
 servers = []
+servers = load_servers()
 
 def send_telegram_message(chat_id, message):
     requests.post(f'https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage',
@@ -166,6 +179,7 @@ def add_server(update, context):
             return
 
         servers.append({'name': servername, 'ip': ip, 'username': username, 'password': password})
+        save_servers()
         send_telegram_message(chat_id, f"Server {servername} added successfully. Now you can use /menu")
     else:
         update.message.reply_text("Sorry, you are not authorized.")
