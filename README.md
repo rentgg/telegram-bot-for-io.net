@@ -55,5 +55,7 @@ I grant permission for other developers to use my code for further development o
 
 # Future updates
 add server deletion
+
 add command binding /launch_binary to each server
+
 add a 'check all containers' button to check all servers and all containers in the format 'name - status'
