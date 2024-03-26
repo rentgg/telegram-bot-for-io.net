@@ -1,10 +1,8 @@
-Please note that the servers must be on a linux system
-
-it will not work on other operating systems!!!
+## Please note that the servers must be on a linux system it will not work on other operating systems!!!
 
 
 
-Instructions for Using the Bot:
+# Instructions for Using the Bot:
 
 1. You need to download Python from the official website: [Python 3.10.6](https://www.python.org/downloads/release/python-3106/) (tested on this version).
 
@@ -26,7 +24,7 @@ TELEGRAM_CHAT_ID = "your chat ID" # You can find it [here](https://t.me/myidbot)
 
 
 
-Description of All Buttons:
+# Description of All Buttons:
 
 Setup New Worker - initiates the installation of all dependencies. Upon completion, it will notify you and ask you to launch the node using the "Launch Node" button.
 
@@ -49,3 +47,13 @@ This is the first version of my bot, and there may be errors. Please feel free t
 I am also open to suggestions for improvement. However, please note that interacting with the website cloud.io.net is currently impossible because they do not have an open API.
 
 I grant permission for other developers to use my code for further development or modification, but please credit me as the original author.
+
+
+# Change log
+25.03.2024
++added saving servers after 1 input
+
+# Future updates
+add server deletion
+add command binding /launch_binary to each server
+add a 'check all containers' button to check all servers and all containers in the format 'name - status'
