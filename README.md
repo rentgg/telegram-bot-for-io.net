@@ -50,7 +50,8 @@ I grant permission for other developers to use my code for further development o
 
 
 # Change log
-25.03.2024
+### 25.03.2024
+
 +added saving servers after 1 input
 
 # Future updates
