@@ -7,8 +7,8 @@ import time
 import socket
 import json
 
-TELEGRAM_BOT_TOKEN = 'bottoken here'
-TELEGRAM_CHAT_ID = 'you chat id here'
+TELEGRAM_BOT_TOKEN = 'bot_token_here'
+TELEGRAM_CHAT_ID = 'you_chat_id_here'
 
 def load_servers():
     try:
@@ -21,7 +21,7 @@ def save_servers():
     with open('servers.json', 'w') as f:
         json.dump(servers, f)
 
-servers = []
+servers = [] 
 servers = load_servers()
 
 def send_telegram_message(chat_id, message):
@@ -64,33 +64,39 @@ def execute_command_on_server1(ip, username, password, command):
     except Exception as e:
         return str(e)
         
-def check_all_servers(update, context):
-    chat_id = update.message.chat_id
-    if str(chat_id) == TELEGRAM_CHAT_ID:
+def add_command(update, context):
+    text = update.message.text
 
-        if not servers:
-            send_telegram_message(chat_id, "No servers added. Please add a server first.")
-            return
+    parts = text.split(' ', 1)
 
-        send_telegram_message(chat_id, "Checking all servers...")
-        results = []
+    if len(parts) < 2:
+        update.message.reply_text("Invalid format. Please use '/addcommand ip command'.")
+        return
 
-        for server in servers:
-            ip = server['ip']
-            username = server['username']
-            password = server['password']
-            servername = server['name']
+    ip, command = parts[1].split(' ', 1)
 
-            if authenticate_server(ip, username, password):
-                results.append(f"{servername} - Online")
-            else:
-                results.append(f"{servername} - Offline")
+    commands_file = 'commands.json'
+    try:
+        with open(commands_file, 'r') as file:
+            try:
+                data = json.load(file)
+            except json.JSONDecodeError:
+                data = {}
+    except FileNotFoundError:
+        data = {}
 
-        message = "\n".join(results)
-        send_telegram_message(chat_id, message)
-    else:
-        update.message.reply_text("Sorry, you are not authorized.")
-        
+    command_key = f"command_{ip}"
+    
+    if command_key in data:
+        update.message.reply_text(f"Command for {ip} already exists.")
+        return
+
+    data[command_key] = command
+
+    with open(commands_file, 'w') as file:
+        json.dump(data, file, indent=4)
+
+    update.message.reply_text(f"Command for {ip} added successfully.")        
 
 def is_valid_server(ip, username, password):
     try:
@@ -120,8 +126,6 @@ def authenticate_server(ip, username, password):
     except Exception as e:
         print("An error occurred while authenticating server:", e)
         return False
-        paramiko.SSHClient().load_system_host_keys()
-        paramiko.SSHClient().clear_all_host_keys()
 
 def add_server(update, context):
     chat_id = update.message.chat_id
@@ -184,6 +188,30 @@ def add_server(update, context):
     else:
         update.message.reply_text("Sorry, you are not authorized.")
 
+def del_server(update, context):
+    chat_id = update.message.chat_id
+    if str(chat_id) == TELEGRAM_CHAT_ID:
+        if len(context.args) == 0:
+            send_telegram_message(chat_id, "Please provide the name of the server to delete.")
+            return
+
+        servername = ' '.join(context.args)
+
+        found_server = None
+        for server in servers:
+            if server['name'] == servername:
+                found_server = server
+                break
+
+        if not found_server:
+            send_telegram_message(chat_id, f"Server '{servername}' not found.")
+            return
+
+        servers.remove(found_server)
+        save_servers()
+        send_telegram_message(chat_id, f"Server '{servername}' has been successfully deleted.")
+    else:
+        update.message.reply_text("Sorry, you are not authorized.")
 
 def show_menu(update, context):
     allowed_chat_id = TELEGRAM_CHAT_ID
@@ -205,9 +233,10 @@ def show_menu(update, context):
             button = InlineKeyboardButton(server_name, callback_data=ip)
             buttons.append([button])
 
-        buttons.append([InlineKeyboardButton("Check Servers", callback_data="/checkservers")])
+        buttons.append([InlineKeyboardButton("Check Status All Servers", callback_data="/checkservers")])
 
         reply_markup = InlineKeyboardMarkup(buttons)
+        context.user_data['state'] = STATE_MAIN_MENU
 
         if update.message:
             update.message.reply_text('Please select a server or choose an action:', reply_markup=reply_markup)
@@ -299,11 +328,25 @@ def server_menu_click(update, context):
 
         if action == "launch":
             if ip is not None:
-                send_telegram_message(query.message.chat_id, "Enter the command to start your Worker, which should begin with ./launch_binary_linux")
+                commands_file = 'commands.json'
+                try:
+                    with open(commands_file, 'r') as file:
+                        try:
+                            data = json.load(file)
+                        except json.JSONDecodeError:
+                            data = {}
 
-                context.user_data['ip'] = ip
-                return AWAITING_LAUNCH_COMMAND
+                except FileNotFoundError:
+                    data = {}
 
+                command_key = f"command_{ip}"
+                saved_command = data.get(command_key)
+
+                if saved_command:
+                    send_telegram_message(query.message.chat_id, f"Found launch command for server {ip} Launching the node...")
+                    save_launch_command(update, context, query, ip, saved_command)
+                else:
+                    send_telegram_message(query.message.chat_id, f"No saved launch command found for {ip}. To add a command, please use the /addcommand command")
             else:
                 send_telegram_message(query.message.chat_id, "Invalid action.")
 
@@ -417,40 +460,25 @@ def server_menu_click(update, context):
             if 'state' in context.user_data and context.user_data['state'] == STATE_MAIN_MENU:
                 start_main_menu(update, context)
 
-def get_launch_command(update, context):
-    chat_id = update.message.chat_id
-    if str(chat_id) == TELEGRAM_CHAT_ID:
-        command = update.message.text
-        ip = context.user_data.get('ip')
-        if not command.startswith("./launch_binary_linux"):
-            send_telegram_message(update.message.chat_id, "Incorrect command...")
-            return AWAITING_LAUNCH_COMMAND
+def save_launch_command(update, context, query, ip, saved_command):
+    if ip is not None:
+        server = next((server for server in servers if server['ip'] == ip), None)
+        if server:
+            username = server.get('username')
+            password = server.get('password')
 
-        expected_command_format = "./launch_binary_linux --device_id=UUID --user_id=UUID --operating_system='OS' --usegpus=false --device_name=NAME"
-        if not validate_command_format(command, expected_command_format):
-            error_message = "Invalid command format. Please use the following format:\n\n"
-            error_message += expected_command_format
-            send_telegram_message(update.message.chat_id, error_message)
-            return AWAITING_LAUNCH_COMMAND
-
-        if ip is not None:
-            server = next((server for server in servers if server['ip'] == ip), None)
-            if server:
-                username = server['username']
-                password = server['password']
+            if username is not None and password is not None:
                 try:
-                    execute_command_on_server(ip, username, password, command)
-                    send_telegram_message(update.message.chat_id, "Node has been successfully launched. /menu")
+                    execute_command_on_server(ip, username, password, saved_command)
+                    send_telegram_message(query.message.chat_id, "Node has been successfully launched.")
                 except Exception as e:
-                    send_telegram_message(update.message.chat_id, f"Failed to connect to server: {e}")
+                    send_telegram_message(query.message.chat_id, f"Failed to launch node: {e}")
             else:
-                send_telegram_message(update.message.chat_id, "Server details not found.")
+                send_telegram_message(query.message.chat_id, "Server credentials not found.")
         else:
-            send_telegram_message(update.message.chat_id, "Invalid action.")
-
-        return ConversationHandler.END
+            send_telegram_message(query.message.chat_id, "Server details not found.")
     else:
-        update.message.reply_text("Sorry, you are not authorized.")
+        send_telegram_message(query.message.chat_id, "IP address is not saved. Please enter the IP address.")
 
 def validate_command_format(command, expected_format):
     expected_parts = expected_format.split(" ")
@@ -548,23 +576,40 @@ def check_all_servers(update, context):
             password = server['password']
             servername = server['name']
 
-            masked_password = '*' * len(password)
+            command = "docker ps"
+            containers_status = execute_command_on_server(ip, username, password, command)
 
-            status = "Online" if authenticate_server(ip, username, password) else "Offline"
-            results.append(f"Server: {servername}\nStatus: {status}\nIP: {ip}\nUsername: {username}\nPassword: {masked_password}\n")
+            if "CONTAINER ID" in containers_status:
+                status = "Running"
+                containers_info = format_containers_status(containers_status)
+            else:
+                status = "Stopped"
+                containers_info = "No containers found."
+
+            result_message = (
+                f"🖥️ Server: {servername}\n"
+                f"🟢 Status: {status}\n\n"
+                f"📦 Containers:\n{containers_info}\n"
+                f"{'-' * 30}\n"
+            )
+            results.append(result_message)
 
         message = "\n".join(results)
         send_telegram_message(chat_id, message)
+        
+        show_menu(update, context)
     else:
         update.message.reply_text("Sorry, you are not authorized.")
 
+        if 'state' in context.user_data and context.user_data['state'] == STATE_MAIN_MENU:
+            start_main_menu(update, context)
 
 AWAITING_LAUNCH_COMMAND = 1
 
 launch_command_handler = ConversationHandler(
-    entry_points=[MessageHandler(Filters.text & ~Filters.command, get_launch_command)],
+    entry_points=[MessageHandler(Filters.text & ~Filters.command, save_launch_command)],
     states={
-        AWAITING_LAUNCH_COMMAND: [MessageHandler(Filters.text & ~Filters.command, get_launch_command)]
+        AWAITING_LAUNCH_COMMAND: [MessageHandler(Filters.text & ~Filters.command, save_launch_command)]
     },
     fallbacks=[]
 )
@@ -574,13 +619,20 @@ def start(update, context):
     chat_id = TELEGRAM_CHAT_ID
     if str(chat_id) == TELEGRAM_CHAT_ID:
         update.message.reply_text(
-        "Hello! I'm a bot for managing servers and their workers.\n"
-        "I accept the following commands:\n\n"
-        "/addserver ip:user:pass (name) - adds a new server and checks its availability.\n"
-        "/menu - displays a list of all active servers.\n\n"
-        "To add a new server, use the /addserver command with IP, username, password, and optionally a server name in parentheses.\n"
-        "For example: /addserver 123.45.67.89:user123:pass123 (MyServer)\n"
-        "To view the server menu, press /menu.")
+            "🤖 **Hello! I'm a bot for managing servers and their workers.**\n\n"
+            "**Available Commands:**\n\n"
+            "🔹 /addserver ip:user:pass (name) - adds a new server and checks its availability.\n"
+            "🔹 /menu - displays a list of all active servers.\n"
+            "🔹 /delserver name - deletes the server with the given name from the database.\n"
+            "🔹 /addcommand ip command - adds a launch command for the specified server.\n\n"
+            "🔹 *To add a new server, use the* /addserver *command with IP, username, password, and optionally a server name in parentheses.*\n"
+            "   *For example:* /addserver 123.45.67.89:user123:pass123 (MyServer)\n\n"
+            "🔹 *To delete a server, use the* /delserver *command followed by the server name.*\n"
+            "   *For example:* /delserver MyServer\n\n"
+            "🔹 *To add a launch command for a server, use the* /addcommand *command followed by the IP and the command.*\n"
+            "   *For example:* /addcommand 123.45.67.89 ./launch_binary_linux --device_id= device_id_here --user_id= user_id_here --operating_system='Linux' --usegpus=false --device_name=name\n\n"
+            "🔹 *To view the server menu, press* /menu."
+        )
     else:
         update.message.reply_text("Sorry, you are not authorized.")
 
@@ -589,6 +641,8 @@ def main():
     dp = updater.dispatcher
 
     dp.add_handler(CommandHandler("addserver", add_server))
+    dp.add_handler(CommandHandler("addcommand", add_command))
+    dp.add_handler(CommandHandler("delserver", del_server))
     dp.add_handler(CommandHandler("menu", show_menu))
     dp.add_handler(CommandHandler("start", start))
     dp.add_handler(CallbackQueryHandler(server_button_click, pattern='^([0-9]{1,3}\.){3}[0-9]{1,3}$'))
