@@ -24,8 +24,9 @@ TELEGRAM_CHAT_ID = "your chat ID" # You can find it [here](https://t.me/myidbot)
 
 
 
-# Description of All Buttons:
+# Description of All Buttons and commands:
 
+## Buttons:
 Setup New Worker - initiates the installation of all dependencies. Upon completion, it will notify you and ask you to launch the node using the "Launch Node" button.
 
 Reset Containers & Images - completely removes all containers and images.
@@ -38,7 +39,11 @@ Check Images Status - performs the same action as the previous function but for 
 
 Restart Server - restarts your remote server (takes about a minute).
 
-
+## Commands:
+/addserver - accepts data in the format [ip]:[username]:[pass] [name] (optional) - adds a new server to the database (saved in the file servers.json)
+/delserver - accepts data in the format [ip or name] - deletes the specified server
+/menu - opens the list of added servers
+/addcommand - accepts data in the format [ip] [command] - binds the /launch_binary command to the selected ip (saved in the file commands.json)
 
 # License and...
 
