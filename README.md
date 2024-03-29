@@ -55,12 +55,18 @@ I grant permission for other developers to use my code for further development o
 +added saving servers after 1 input
 
 ### 29.03.2024
-add server deletion
+add server deletion - simple removal of servers with the command /delserver [name]
 
-add command binding /launch_binary to each server
+add command binding /launch_binary to each server - now you can bind startup commands to each ip with the command /addcommand [ip] [command]
 
-add a 'check all containers' button to check all servers and all containers in the format 'name - status'
+add a 'check all containers' button to check all servers and all containers in the format 'name - status' - now you can check the status of all servers with one button (useful for those who have many servers)
 
 # Future updates
-in the process of development.....
+add a check for duplicates when adding servers
+
+speed up the bot's work by transferring to asyncio
+
+add a new feature that will restart the node every day
+
+create a compiled version of the bot for windows system
 
