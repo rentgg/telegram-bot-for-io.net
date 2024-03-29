@@ -27,17 +27,19 @@ TELEGRAM_CHAT_ID = "your chat ID" # You can find it [here](https://t.me/myidbot)
 # Description of All Buttons and commands:
 
 ## Buttons:
-Setup New Worker - initiates the installation of all dependencies. Upon completion, it will notify you and ask you to launch the node using the "Launch Node" button.
+Setup New Worker - initiates the installation of all dependencies. Upon completion, it will notify you and ask you to launch the node using the "Launch Node" button. (note that before clicking on the Launch Node button you need to bind the command via /addcommand)
 
 Reset Containers & Images - completely removes all containers and images.
 
-Launch Node - starts or restarts your node. Make sure to press this after setting up the worker.
+Launch Node - launches the node, be sure to click after the Setup New Worker function (note that before clicking on the button you need to bind the command via /addcommand)
 
 Check Containers Status - shows all information about containers if they are running. If not, it will indicate that there are no running containers.
 
 Check Images Status - performs the same action as the previous function but for images.
 
 Restart Server - restarts your remote server (takes about a minute).
+
+Check Status All Servers - this allows you to check all servers for network connectivity and find out the status of containers (the video shows how it works on only 1 server, but it will work for you even if you have 10+ servers)
 
 ## Commands:
 /addserver - accepts data in the format [ip]:[username]:[pass] [name] (optional) - adds a new server to the database (saved in the file servers.json)
