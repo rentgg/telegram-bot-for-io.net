@@ -40,7 +40,7 @@ Restart Server - restarts your remote server (takes about a minute).
 
 
 
-
+# License and...
 
 This is the first version of my bot, and there may be errors. Please feel free to report them either on GitHub in the Issues section or on Discord - rentgg.
 
