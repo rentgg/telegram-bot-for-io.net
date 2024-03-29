@@ -21,7 +21,10 @@ TELEGRAM_CHAT_ID = "your chat ID" # You can find it [here](https://t.me/myidbot)
 6. To begin, send the command /start to the bot, and it will guide you on what to do next.
 
 
+# Video instructions / Demonstration of the bot's functionality
 
+you can also watch a video that shows the installation process and the operation of all the bot's functionality from beginning to end
+[here](https://youtu.be/730GsS12hw0)
 
 
 # Description of All Buttons and commands:
